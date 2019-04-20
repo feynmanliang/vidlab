@@ -1,9 +1,16 @@
 import { TimelineMax, TweenMax } from "gsap";
 
 const video = document.createElement("video");
-video.setAttribute("height", 400);
-video.setAttribute("width", 600);
-video.setAttribute("controls", true);
+
+window.onresize = () => {
+//  video.setAttribute('height', `${window.innerHeight}px`);
+  video.setAttribute('width', `${window.innerWidth}px`);
+  console.log('hey');
+};
+
+// video.setAttribute('height', `${window.innerHeight}px`);
+video.setAttribute('width', `${window.innerWidth}px`);
+video.setAttribute('controls', 'true');
 
 const src = document.createElement("source");
 

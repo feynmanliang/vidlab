@@ -1,0 +1,81 @@
+import * as React from 'react';
+import styled from 'styled-components';
+import { TimelineMax } from "gsap";
+import { Annotation, AnnotatedObject } from 'domain/annotations/types';
+import Box from 'domain/annotations/Box';
+import { setupVideo } from './lifecycleUtil';
+import Controls, { CONTROLS_HEIGHT } from './Controls';
+import AnnotationBrush from './AnnotationBrush';
+
+type BoundingBox = {
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+};
+
+const setNewAnnotation =
+    (
+        groups: AnnotatedObject[],
+        updateGroups: (groups: AnnotatedObject[]) => void,
+        timeline: TimelineMax,
+        resetTimeline: (newTimeline: TimelineMax) => void,
+    ) =>
+    (newAnnotation: Annotation) => {
+        updateGroups(
+            groups.map((group: AnnotatedObject) => {
+                if (group.id === newAnnotation.id) {
+                    group.annotations = [...group.annotations, newAnnotation];
+                }
+                return group;
+            })
+        );
+    };
+
+export type Props = {
+    annotationGroups: AnnotatedObject[];
+    src: string;
+};
+
+const Video: React.SFC<Props> = ({
+        annotationGroups,
+        src,
+    }) => {
+    const [groups, updateGroups] = React.useState(annotationGroups);
+    const [timeline, resetTimeline] = React.useState(new TimelineMax());
+    const [videoHeight, setVideoHeight] = React.useState(0)
+    const [videoWidth, setVideoWidth] = React.useState(0)
+    const videoRef = React.useRef(null);
+    React.useEffect(setupVideo(videoRef, timeline, setVideoHeight, setVideoWidth), []);
+
+    const controlsTop = videoHeight - CONTROLS_HEIGHT;
+    return (
+        <div>
+            <video ref={videoRef} controls={false}>
+                <source src={src} type="video/mp4" />
+            </video>
+            <Controls
+                timeline={timeline}
+                videoRefGetter={() => videoRef.current}
+            />
+            <AnnotationBrush
+                annotationGroupId="a"
+                timestamp={videoRef.current ? videoRef.current.currentTime : 0}
+                videoElement={() => videoRef.current}
+                onAnnotationCreate={setNewAnnotation(groups, updateGroups, timeline, resetTimeline)}
+            />
+            {groups.map((group: AnnotatedObject) => (
+                <Box
+                    {...group}
+                    videoWidthPx={videoWidth}
+                    videoHeightPx={videoHeight}
+                    timeline={timeline}
+                    videoRef={videoRef}
+                    key={group.id}
+                />
+            ))}
+        </div>
+    );
+};
+
+export default Video;
