@@ -66,7 +66,6 @@ const Container = styled.div`
 const Track = styled.div`
     flex-grow: 1;
     background: white;
-    border: 1px solid;
     height: ${CONTROLS_HEIGHT}px;
     position: relative;
     &:hover {
@@ -82,14 +81,19 @@ const Track = styled.div`
 `;
 
 const ButtonContainer = styled.div`
-    border: 1px solid;
     height: ${CONTROLS_HEIGHT}px;
     display: inline-flex
-    flex-direction: column;
 `;
 
 const ControlButton = styled.button`
+    ${stripTransition}
+    outline: none;
+    border: 0;
     flex-grow: 1;
+    &:hover, &:focus {
+        font-weight: bold;
+        cursor: pointer;
+    }
 `;
 
 const getCurrentTime = (videoElement: HTMLVideoElement, position: number): number => {
@@ -112,17 +116,27 @@ getMouseDownStream(handleElement).pipe(switchMap(() =>
 .pipe(auditTime(50))
 .pipe(map((event: any) => event.clientX));
 
-const handlePlay = (timeline: TimelineMax, videoGetter: () => null | HTMLVideoElement) => (): void => {
+const handlePlay = (
+        timeline: TimelineMax,
+        videoGetter: () => null | HTMLVideoElement,
+        setPause: (paused: boolean) => void
+    ) => (): void => {
     const videoElement = videoGetter();
     if (videoElement) {
+        setPause(false);
         timeline.play();
         videoElement.play();
     }
 };
 
-const handlePause = (timeline: TimelineMax, videoGetter: () => null | HTMLVideoElement) => (): void => {
+const handlePause = (
+        timeline: TimelineMax,
+        videoGetter: () => null | HTMLVideoElement,
+        setPause: (paused: boolean) => void
+    ) => (): void => {
     const videoElement = videoGetter();
     if (videoElement) {
+        setPause(true);
         timeline.pause();
         videoElement.pause();
     }
@@ -139,6 +153,7 @@ const Controls: React.SFC<Props> = ({
 }) => {
     const controlsRef = React.useRef(null);
     const handleRef = React.useRef(null);
+    const [paused, setPause] = React.useState(true);
     const [handleX, setHandleX] = React.useState(0);
     React.useEffect(
         () => {
@@ -169,13 +184,14 @@ const Controls: React.SFC<Props> = ({
 
     return (
         <Container>
-            <ButtonContainer>
-                <ControlButton onClick={handlePause(timeline, videoRefGetter)}>
-                    pause
-                </ControlButton>
-                <ControlButton onClick={handlePlay(timeline, videoRefGetter)}>
-                    play
-                </ControlButton>
+            <ButtonContainer style={{ width: PLAY_PAUSE_WIDTH }}>
+                {paused ?
+                    <ControlButton onClick={handlePlay(timeline, videoRefGetter, setPause)}>
+                        play
+                    </ControlButton> :
+                    <ControlButton onClick={handlePause(timeline, videoRefGetter, setPause)}>
+                        pause
+                    </ControlButton>}
             </ButtonContainer>
             <Track ref={controlsRef}>
                 <ActiveStrip width={handleX} className="strip" />
