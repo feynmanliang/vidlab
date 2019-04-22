@@ -87,6 +87,7 @@ const ButtonContainer = styled.div`
 
 const ControlButton = styled.button`
     ${stripTransition}
+    font-size: 16px;
     outline: none;
     border: 0;
     flex-grow: 1;
@@ -100,6 +101,18 @@ const getCurrentTime = (videoElement: HTMLVideoElement, position: number): numbe
     const width = videoElement.clientWidth;
     const duration = videoElement.duration;
     return (position / width) * duration;
+};
+
+const handleTrackClick = (
+        videoGetter: () => null | HTMLVideoElement,
+        setHandleX: (x: number) => void
+    ) => (event: React.MouseEvent<any>): void => {
+    const position = event.clientX;
+    setHandleX(Math.max(0, position - PLAY_PAUSE_WIDTH));
+    const videoElement = videoGetter();
+    if (videoElement) {
+        videoElement.currentTime = getCurrentTime(videoElement, position);
+    }
 };
 
 const getMouseDownStream = (controlElement: HTMLVideoElement): Observable<Event> =>
@@ -193,7 +206,7 @@ const Controls: React.SFC<Props> = ({
                         pause
                     </ControlButton>}
             </ButtonContainer>
-            <Track ref={controlsRef}>
+            <Track ref={controlsRef} onClick={handleTrackClick(videoRefGetter, setHandleX)}>
                 <ActiveStrip width={handleX} className="strip" />
                 <InactiveStrip
                     width={videoRefGetter() ? videoRefGetter().clientWidth - handleX - PLAY_PAUSE_WIDTH : handleX}

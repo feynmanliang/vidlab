@@ -7,7 +7,7 @@ import { updateBoxSizes, initialSetupBox } from './lifecycleUtil';
 
 const StyledBox = styled.div<{ background: string }>`
     position: absolute;
-    background: ${props => props.background};
+    border: 3px solid ${props => props.background};
 `;
 
 export type Props = AnnotatedObject & {
