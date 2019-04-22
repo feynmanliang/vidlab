@@ -16,14 +16,11 @@ const stripTransition = `
     transition: all 0.15s;
 `;
 
-const Strip = styled.div<{ width: number }>`
-    ${stripTransition};
+const stripStyle = `
     border-radius: 3px;
     position: absolute;
     top: ${(CONTROLS_HEIGHT / 2) - 2.5}px;
-    background: #FF0000;
     height: 5px;
-    width: ${props => props.width}px;
     transform: scale(1);
     &:hover {
         transform: scaleY(1.2);
@@ -31,6 +28,21 @@ const Strip = styled.div<{ width: number }>`
             transform: scale(1.2);
         }
     }
+`;
+
+const InactiveStrip = styled.div<{ width: number }>`
+    right: 0px;
+    ${stripTransition}
+    ${stripStyle}
+    background: rgba(0, 0, 0, 0.2);
+    width: ${props => props.width}px;
+`;
+
+const ActiveStrip = styled.div<{ width: number }>`
+    ${stripTransition}
+    ${stripStyle}
+    background: #FF0000;
+    width: ${props => props.width}px;
 `;
 
 const Handle = styled.div`
@@ -166,7 +178,11 @@ const Controls: React.SFC<Props> = ({
                 </ControlButton>
             </ButtonContainer>
             <Track ref={controlsRef}>
-                <Strip width={handleX} className="strip" />
+                <ActiveStrip width={handleX} className="strip" />
+                <InactiveStrip
+                    width={videoRefGetter() ? videoRefGetter().clientWidth - handleX - PLAY_PAUSE_WIDTH : handleX}
+                    className="strip"
+                />
                 <Handle className="handle" ref={handleRef} style={{ left: handleX }}>
                     <svg height="15" width="15">
                         <circle r="7.5" cx="7.5" cy="7.5" fill="#FF0000" />
