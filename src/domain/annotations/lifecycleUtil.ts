@@ -10,8 +10,6 @@ const createAnnotations = (
         videoWidthPx: number,
         videoHeightPx: number,
     ): void => {
-//    timeline.pause();
-//    timeline.clear();
     annotations.forEach(({ timestamp, top, right, bottom, left, visible }: Annotation, i: number) => {
         const prevKeyframeTime = i === 0 ? 0 : annotations[i - 1].timestamp;
 
@@ -32,8 +30,6 @@ const createAnnotations = (
             );
         }
     });
-
-    console.log(timeline);
 };
 
 export const initialSetupBox = (

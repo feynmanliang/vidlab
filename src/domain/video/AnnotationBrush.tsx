@@ -71,17 +71,24 @@ class AnnotationBrush extends React.PureComponent<Props, State> {
         });
         getMouseUpStream(document)
         .subscribe(() => {
-            const { annotationGroupId, timestamp, onAnnotationCreate } = this.props;
+            const { annotationGroupId, onAnnotationCreate } = this.props;
             const { left, width, height, top } = this.state;
-            onAnnotationCreate({
-                id: annotationGroupId,
+            const numberValues = {
                 top,
                 right: left + width,
                 bottom: top + height,
                 left,
-                timestamp,
+            };
+
+            const newAnnotation = {
+                ...numberValues,
+                id: annotationGroupId,
+                timestamp: videoElement.currentTime,
                 visible: true,
-            });
+            };
+            if (Object.values(numberValues).every((value: number) => value !== 0)) {
+                onAnnotationCreate(newAnnotation);
+            }
             this.setState({
                 visible: false,
                 top: 0,

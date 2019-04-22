@@ -19,7 +19,6 @@ const setNewAnnotation =
         groups: AnnotatedObject[],
         updateGroups: (groups: AnnotatedObject[]) => void,
         timeline: TimelineMax,
-        resetTimeline: (newTimeline: TimelineMax) => void,
     ) =>
     (newAnnotation: Annotation) => {
         updateGroups(
@@ -42,7 +41,7 @@ const Video: React.SFC<Props> = ({
         src,
     }) => {
     const [groups, updateGroups] = React.useState(annotationGroups);
-    const [timeline, resetTimeline] = React.useState(new TimelineMax());
+    const [timeline] = React.useState(new TimelineMax());
     const [videoHeight, setVideoHeight] = React.useState(0)
     const [videoWidth, setVideoWidth] = React.useState(0)
     const videoRef = React.useRef(null);
@@ -62,7 +61,7 @@ const Video: React.SFC<Props> = ({
                 annotationGroupId="a"
                 timestamp={videoRef.current ? videoRef.current.currentTime : 0}
                 videoElement={() => videoRef.current}
-                onAnnotationCreate={setNewAnnotation(groups, updateGroups, timeline, resetTimeline)}
+                onAnnotationCreate={setNewAnnotation(groups, updateGroups, timeline)}
             />
             {groups.map((group: AnnotatedObject) => (
                 <Box
