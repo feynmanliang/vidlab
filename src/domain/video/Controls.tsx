@@ -158,15 +158,18 @@ const handlePause = (
 type Props = {
     timeline: TimelineMax;
     videoRefGetter: () => null | HTMLVideoElement;
+    paused: boolean;
+    setPause: (paused: boolean) => void;
 };
 
 const Controls: React.SFC<Props> = ({
     timeline,
     videoRefGetter,
+    paused,
+    setPause,
 }) => {
     const controlsRef = React.useRef(null);
     const handleRef = React.useRef(null);
-    const [paused, setPause] = React.useState(true);
     const [handleX, setHandleX] = React.useState(0);
     React.useEffect(
         () => {

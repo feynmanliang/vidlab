@@ -24,6 +24,11 @@ type BoundingBox = {
     right?: number;
 };
 
+const handleOnEnded = (timeline: TimelineMax, setPause: (paused: boolean) => void) => (): void => {
+    timeline.pause();
+    setPause(true);
+};
+
 const setNewAnnotation =
     (
         groups: AnnotatedObject[],
@@ -54,16 +59,19 @@ const Video: React.SFC<Props> = ({
     const [timeline] = React.useState(new TimelineMax());
     const [videoHeight, setVideoHeight] = React.useState(0)
     const [videoWidth, setVideoWidth] = React.useState(0)
+    const [paused, setPause] = React.useState(true);
     const videoRef = React.useRef(null);
     React.useEffect(setupVideo(videoRef, timeline, setVideoHeight, setVideoWidth), []);
 
     const controlsTop = videoHeight - CONTROLS_HEIGHT;
     return (
         <Container height={videoHeight + CONTROLS_HEIGHT} width={videoWidth}>
-            <video ref={videoRef} controls={false}>
+            <video onEnded={handleOnEnded(timeline, setPause)} ref={videoRef} controls={false}>
                 <source src={src} type="video/mp4" />
             </video>
             <Controls
+                paused={paused}
+                setPause={setPause}
                 timeline={timeline}
                 videoRefGetter={() => videoRef.current}
             />
