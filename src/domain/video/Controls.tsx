@@ -4,28 +4,44 @@ import { auditTime, map, switchMap, takeUntil } from 'rxjs/operators';
 import { TimelineMax } from "gsap";
 import styled from 'styled-components';
 
-const HANDLE_HEIGHT = 20;
+const HANDLE_HEIGHT = 15;
 
-const HANDLE_WIDTH = 10;
+const HANDLE_WIDTH = 15;
 
 export const PLAY_PAUSE_WIDTH = 50 + (HANDLE_WIDTH / 2);
 
-export const CONTROLS_HEIGHT = 50;
+export const CONTROLS_HEIGHT = 70;
 
-const Strip = styled.div`
+const stripTransition = `
+    transition: all 0.15s;
+`;
+
+const Strip = styled.div<{ width: number }>`
+    ${stripTransition};
+    border-radius: 3px;
     position: absolute;
-    top: ${(CONTROLS_HEIGHT / 2) - 1}px;
-    height: 1px;
-    width: 100%;
-    background: black;
+    top: ${(CONTROLS_HEIGHT / 2) - 2.5}px;
+    background: #FF0000;
+    height: 5px;
+    width: ${props => props.width}px;
+    transform: scale(1);
+    &:hover {
+        transform: scaleY(1.2);
+        + .handle {
+            transform: scale(1.2);
+        }
+    }
 `;
 
 const Handle = styled.div`
+    ${stripTransition};
+    svg {
+        ${stripTransition};
+        &:hover, &:active {
+            transform: scale(1.2);
+        }
+    }
     position: absolute;
-    background: blue;
-    height: ${HANDLE_HEIGHT}px;
-    width: ${HANDLE_WIDTH}px;
-    border-radius: 100%;
     top: ${(CONTROLS_HEIGHT / 2) - (HANDLE_HEIGHT / 2)}px;
 `;
 
@@ -41,6 +57,16 @@ const Track = styled.div`
     border: 1px solid;
     height: ${CONTROLS_HEIGHT}px;
     position: relative;
+    &:hover {
+        ${stripTransition};
+        svg {
+            transform: scale(1.2);
+        }
+
+        .strip {
+            transform: scaleY(1.2);
+        }
+    }
 `;
 
 const ButtonContainer = styled.div`
@@ -140,8 +166,12 @@ const Controls: React.SFC<Props> = ({
                 </ControlButton>
             </ButtonContainer>
             <Track ref={controlsRef}>
-                <Strip />
-                <Handle ref={handleRef} style={{ left: handleX }} />
+                <Strip width={handleX} className="strip" />
+                <Handle className="handle" ref={handleRef} style={{ left: handleX }}>
+                    <svg height="15" width="15">
+                        <circle r="7.5" cx="7.5" cy="7.5" fill="#FF0000" />
+                    </svg>
+                </Handle>
             </Track>
         </Container>
     );
