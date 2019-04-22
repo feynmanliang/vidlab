@@ -4,8 +4,18 @@ import { TimelineMax } from "gsap";
 import { Annotation, AnnotatedObject } from 'domain/annotations/types';
 import Box from 'domain/annotations/Box';
 import { setupVideo } from './lifecycleUtil';
-import Controls, { CONTROLS_HEIGHT } from './Controls';
+import Controls, { CONTROLS_HEIGHT, PLAY_PAUSE_WIDTH } from './Controls';
 import AnnotationBrush from './AnnotationBrush';
+
+const Container = styled.div<{ height: number; width: number}>`
+    background: black;
+    height: ${props => props.height}px;
+    width: ${props => props.width}px;
+
+    video {
+        left: ${PLAY_PAUSE_WIDTH}px;
+    }
+`;
 
 type BoundingBox = {
     top?: number;
@@ -49,7 +59,7 @@ const Video: React.SFC<Props> = ({
 
     const controlsTop = videoHeight - CONTROLS_HEIGHT;
     return (
-        <div>
+        <Container height={videoHeight + CONTROLS_HEIGHT} width={videoWidth}>
             <video ref={videoRef} controls={false}>
                 <source src={src} type="video/mp4" />
             </video>
@@ -73,7 +83,7 @@ const Video: React.SFC<Props> = ({
                     key={group.id}
                 />
             ))}
-        </div>
+        </Container>
     );
 };
 
