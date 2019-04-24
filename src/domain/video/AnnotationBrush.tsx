@@ -4,22 +4,22 @@ import { switchMap, takeUntil } from 'rxjs/operators';
 import styled from 'styled-components';
 import { Annotation } from '../annotations/types';
 
-const getMouseDownStream = (controlElement: HTMLVideoElement): Observable<Event> =>
+const getMouseDownStream = (controlElement: HTMLElement): Observable<any> =>
     fromEvent(controlElement, 'mousedown');
-const getMouseUpStream = (controlElement: HTMLVideoElement): Observable<Event> =>
+const getMouseUpStream = (controlElement: HTMLElement): Observable<any> =>
     fromEvent(controlElement, 'mouseup');
-const getMouseMoveStream = (controlElement: HTMLVideoElement): Observable<Event> =>
-fromEvent(controlElement, 'mousemove');
+const getMouseMoveStream = (controlElement: HTMLElement): Observable<any> =>
+    fromEvent(controlElement, 'mousemove');
 
-const getDragStream = (videoElement: HTMLVideoElement): Observable<Event> =>
-getMouseDownStream(videoElement).pipe(switchMap(() =>
-    getMouseMoveStream(videoElement).pipe(takeUntil(getMouseUpStream(document)))
-));
+const getDragStream = (videoElement: HTMLVideoElement): Observable<any> =>
+    getMouseDownStream(videoElement).pipe(switchMap(() =>
+        getMouseMoveStream(videoElement).pipe(takeUntil(getMouseUpStream(document.body)))
+    ));
 
 type BorderProps = { visible: boolean };
 
 const Border = styled.div<BorderProps>`
-    display: ${props => props.visible};
+    display: ${(props: BorderProps) => props.visible};
     position: absolute;
     background: green;
 `;
@@ -67,42 +67,44 @@ class AnnotationBrush extends React.PureComponent<Props, State> {
     setVideoElement(videoElement: HTMLVideoElement): void {
         getMouseDownStream(videoElement)
         .subscribe((event: any) => {
+            console.log('DRAGSTART');
             this.setState({
                 top: event.clientY,
                 left: event.clientX,
                 visible: true,
             });
         });
-        getMouseUpStream(document)
+
+        getMouseUpStream(document.body)
         .subscribe(() => {
+            console.log('MOUSEUP');
             const { annotationGroupId, onAnnotationCreate } = this.props;
             const { left, width, height, top } = this.state;
-            const numberValues = {
-                top,
-                right: left + width,
-                bottom: top + height,
-                left,
-            };
-
-            const newAnnotation = {
-                ...numberValues,
-                id: annotationGroupId,
-                timestamp: videoElement.currentTime,
-                visible: true,
-            };
-            if (Object.values(numberValues).every((value: number) => value !== 0)) {
+            if (width || height) {
+                const newAnnotation = {
+                    top,
+                    right: left + width,
+                    bottom: top + height,
+                    left,
+                    id: annotationGroupId,
+                    timestamp: videoElement.currentTime,
+                    visible: true,
+                };
                 onAnnotationCreate(newAnnotation);
+
+                this.setState({
+                    visible: false,
+                    top: 0,
+                    left: 0,
+                    height: 0,
+                    width: 0,
+                });
             }
-            this.setState({
-                visible: false,
-                top: 0,
-                left: 0,
-                height: 0,
-                width: 0,
-            });
         });
+
         getDragStream(videoElement)
         .subscribe((event: any) => {
+            console.log('DRAG');
             const x = event.clientX;
             const y = event.clientY;
             const { left, top } = this.state;
