@@ -61,11 +61,23 @@ const Video: React.SFC<Props> = ({
     const [videoWidth, setVideoWidth] = React.useState(0)
     const [paused, setPause] = React.useState(true);
     const videoRef = React.useRef(null);
+    const screenRef = React.useRef(null);
     React.useEffect(setupVideo(videoRef, timeline, setVideoHeight, setVideoWidth), []);
 
     const controlsTop = videoHeight - CONTROLS_HEIGHT;
     return (
         <Container height={videoHeight + CONTROLS_HEIGHT} width={videoWidth}>
+            <div
+                ref={screenRef}
+                style={{
+                    zIndex: 2,
+                    position: 'absolute',
+                    top: 0,
+                    left: PLAY_PAUSE_WIDTH,
+                    height: videoHeight,
+                    width: videoWidth,
+                }}
+            />
             <video onEnded={handleOnEnded(timeline, setPause)} ref={videoRef} controls={false}>
                 <source src={src} type="video/mp4" />
             </video>
@@ -78,6 +90,8 @@ const Video: React.SFC<Props> = ({
             <AnnotationBrush
                 annotationGroupId="a"
                 timestamp={videoRef.current ? videoRef.current.currentTime : 0}
+                screenRef
+                screenElement={() => screenRef.current}
                 videoElement={() => videoRef.current}
                 onAnnotationCreate={setNewAnnotation(groups, updateGroups, timeline)}
             />

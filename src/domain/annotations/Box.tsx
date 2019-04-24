@@ -7,6 +7,7 @@ import { updateBoxSizes, initialSetupBox } from './lifecycleUtil';
 
 const StyledBox = styled.div<{ background: string }>`
     position: absolute;
+    z-index: 1;
     border: 3px solid ${props => props.background};
 `;
 

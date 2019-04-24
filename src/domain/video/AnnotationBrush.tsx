@@ -25,6 +25,7 @@ const Border = styled.div<BorderProps>`
 `;
 
 type Props = {
+    screenElement: () => HTMLDivElement | null;
     annotationGroupId: string;
     timestamp: number;
     onAnnotationCreate: (newAnnotation: Annotation) => void;
@@ -49,25 +50,26 @@ class AnnotationBrush extends React.PureComponent<Props, State> {
     };
 
     componentDidMount() {
-        const { videoElement } = this.props;
-        const element = videoElement();
-        if (element) {
-            this.setVideoElement(element);
+        const { screenElement, videoElement } = this.props;
+        const screen = screenElement();
+        const video = videoElement();
+        if (video && screen) {
+            this.setVideoElement(screen, video);
         }
     }
 
     componentDidUpdate(prevProps: Props) {
-        const { videoElement } = this.props;
-        const newElement = videoElement();
-        if (!prevProps.videoElement() && newElement) {
-            this.setVideoElement(newElement);
+        const { screenElement, videoElement } = this.props;
+        const screen = screenElement();
+        const video = videoElement();
+        if ((!prevProps.screenElement() && screen || !prevProps.videoElement() && video) && screen && video) {
+            this.setVideoElement(screen, video);
         }
     }
 
-    setVideoElement(videoElement: HTMLVideoElement): void {
-        getMouseDownStream(videoElement)
+    setVideoElement(screenElement: HTMLDivElement, videoElement: HTMLVideoElement): void {
+        getMouseDownStream(screenElement)
         .subscribe((event: any) => {
-            console.log('DRAGSTART');
             this.setState({
                 top: event.clientY,
                 left: event.clientX,
@@ -75,9 +77,8 @@ class AnnotationBrush extends React.PureComponent<Props, State> {
             });
         });
 
-        getMouseUpStream(document.body)
+        getMouseUpStream(screenElement)
         .subscribe(() => {
-            console.log('MOUSEUP');
             const { annotationGroupId, onAnnotationCreate } = this.props;
             const { left, width, height, top } = this.state;
             if (width || height) {
@@ -102,9 +103,8 @@ class AnnotationBrush extends React.PureComponent<Props, State> {
             }
         });
 
-        getDragStream(videoElement)
+        getDragStream(screenElement)
         .subscribe((event: any) => {
-            console.log('DRAG');
             const x = event.clientX;
             const y = event.clientY;
             const { left, top } = this.state;
