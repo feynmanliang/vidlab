@@ -16,6 +16,24 @@ const getDragStream = (videoElement: HTMLVideoElement): Observable<any> =>
         getMouseMoveStream(videoElement).pipe(takeUntil(getMouseUpStream(document.body)))
     ));
 
+const getBrushDimensions = (height: number, width: number, left: number, top: number): { [key: string]: number } => {
+    const base = { height: Math.abs(height), width: Math.abs(width) };
+
+    if (width < 0) {
+        base.left = left + width;
+    } else {
+        base.left = left;
+    }
+
+    if (height < 0) {
+        base.top = top + height;
+    } else {
+        base.top = top;
+    }
+
+    return base;
+};
+
 type BorderProps = { visible: boolean };
 
 const Border = styled.div<BorderProps>`
@@ -82,11 +100,12 @@ class AnnotationBrush extends React.PureComponent<Props, State> {
             const { annotationGroupId, onAnnotationCreate } = this.props;
             const { left, width, height, top } = this.state;
             if (width || height) {
+                const dimensions = getBrushDimensions(height, width, left, top);
                 const newAnnotation = {
-                    top,
-                    right: left + width,
-                    bottom: top + height,
-                    left,
+                    top: dimensions.top,
+                    right: dimensions.left + dimensions.width,
+                    bottom: dimensions.top + dimensions.height,
+                    left: dimensions.left,
                     id: annotationGroupId,
                     timestamp: videoElement.currentTime,
                     visible: true,
@@ -108,7 +127,7 @@ class AnnotationBrush extends React.PureComponent<Props, State> {
             const x = event.clientX;
             const y = event.clientY;
             const { left, top } = this.state;
-            this.setState({ width: Math.abs(x - left), height: Math.abs(y - top) });
+            this.setState({ width: x - left, height: y - top });
         });
     }
 
@@ -120,7 +139,10 @@ class AnnotationBrush extends React.PureComponent<Props, State> {
         } = this.props;
         const { top, left, visible, width, height } = this.state;
         return (
-            <Border visible={visible} style={{ left, top, height, width }} />
+            <Border
+                visible={visible}
+                style={getBrushDimensions(height, width, left, top)}
+            />
         );
     }
 }
