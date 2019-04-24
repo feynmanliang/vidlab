@@ -16,7 +16,9 @@ getMouseDownStream(videoElement).pipe(switchMap(() =>
     getMouseMoveStream(videoElement).pipe(takeUntil(getMouseUpStream(document)))
 ));
 
-const Border = styled.div<{ visible: boolean }>`
+type BorderProps = { visible: boolean };
+
+const Border = styled.div<BorderProps>`
     display: ${props => props.visible};
     position: absolute;
     background: green;
@@ -48,15 +50,17 @@ class AnnotationBrush extends React.PureComponent<Props, State> {
 
     componentDidMount() {
         const { videoElement } = this.props;
-        if (videoElement()) {
-            this.setVideoElement(videoElement());
+        const element = videoElement();
+        if (element) {
+            this.setVideoElement(element);
         }
     }
 
     componentDidUpdate(prevProps: Props) {
         const { videoElement } = this.props;
-        if (!prevProps.videoElement() && videoElement()) {
-            this.setVideoElement(videoElement());
+        const newElement = videoElement();
+        if (!prevProps.videoElement() && newElement) {
+            this.setVideoElement(newElement);
         }
     }
 
