@@ -86,14 +86,3 @@ export const updateBoxSizes = (
         );
     }
 };
-
-export const updateBoxes = (
-        annotations: Annotation[],
-        videoRef: React.RefObject<HTMLVideoElement>,
-        boxRef: React.RefObject<HTMLDivElement>,
-        timeline: TimelineMax,
-        videoWidthPx: number,
-        videoHeightPx: number,
-        ) => () => {
-    console.log(timeline);
-};

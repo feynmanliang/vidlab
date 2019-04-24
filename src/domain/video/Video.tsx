@@ -33,13 +33,15 @@ const setNewAnnotation =
     (
         groups: AnnotatedObject[],
         updateGroups: (groups: AnnotatedObject[]) => void,
-        timeline: TimelineMax,
     ) =>
     (newAnnotation: Annotation) => {
         updateGroups(
             groups.map((group: AnnotatedObject) => {
                 if (group.id === newAnnotation.id) {
-                    group.annotations = [...group.annotations, newAnnotation];
+                    group.annotations = [
+                        ...group.annotations,
+                        newAnnotation
+                    ].sort((a: Annotation, b: Annotation) => a.timestamp - b.timestamp);
                 }
                 return group;
             })
@@ -93,7 +95,7 @@ const Video: React.SFC<Props> = ({
                 screenRef
                 screenElement={() => screenRef.current}
                 videoElement={() => videoRef.current}
-                onAnnotationCreate={setNewAnnotation(groups, updateGroups, timeline)}
+                onAnnotationCreate={setNewAnnotation(groups, updateGroups)}
             />
             {groups.map((group: AnnotatedObject) => (
                 <Box
