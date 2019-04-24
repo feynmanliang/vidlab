@@ -175,21 +175,22 @@ const Controls: React.SFC<Props> = ({
         () => {
             const controlElement = controlsRef.current;
             const handleElement = handleRef.current;
-            if (controlElement && handleElement) {
-                videoRefGetter().addEventListener('timeupdate', (event: any) => {
-                    const videoElement = videoRefGetter();
-                    if (videoElement) {
+            const videoElement = videoRefGetter();
+            if (controlElement && handleElement && videoElement) {
+                videoElement.addEventListener('timeupdate', (event: any) => {
+                    const video = videoRefGetter();
+                    if (video) {
                         const newTime = event.target.currentTime;
-                        const width = videoElement.clientWidth;
-                        const duration = videoElement.duration;
+                        const width = video.clientWidth;
+                        const duration = video.duration;
                         setHandleX(Math.max(0, ((newTime / duration) * width) - PLAY_PAUSE_WIDTH));
                     }
                 });
 
                 getDragStream(controlElement, handleElement).subscribe((position: number) => {
-                    const videoElement = videoRefGetter();
-                    if (videoElement) {
-                        videoElement.currentTime = getCurrentTime(videoElement, position);
+                    const video = videoRefGetter();
+                    if (video) {
+                        video.currentTime = getCurrentTime(video, position);
                         setHandleX(Math.max(0, position - PLAY_PAUSE_WIDTH));
                     }
                 });
